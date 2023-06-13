@@ -1383,7 +1383,7 @@ void transform_ext::makeMatmulMatcher(
   matmulCapture = &matmul;
   // Mandatory FillOp must create the unique output of the reduction.
   auto &fill = transform_ext::m_StructuredOp<linalg::FillOp>(matcherContext);
-  matmul = matmul.output(transform_ext::NumEqualsTo(1)).output(0, fill);
+  matmul = matmul.output(transform_ext::NumEqualsTo(1)).output(0, fill, OptionalMatch());
   fillCapture = &fill;
 
   auto &trailing = m_StructuredOp<linalg::GenericOp>(matcherContext);
