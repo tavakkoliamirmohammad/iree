@@ -845,7 +845,7 @@ matmulCallback(transform_ext::MatchCallbackResult &res, Location loc,
         DBGS() << trailing->getCaptured() << "\n";
     });
 
-    res.addPotentiallyEmptyPayloadGroup({fill->getCaptured()});
+    res.addPotentiallyEmptyPayloadGroup(fill->getCaptured());
     res.addPayloadGroup({pattern->getCaptured()});
     res.addPotentiallyEmptyPayloadGroup(trailing->getCaptured());
     return WalkResult::interrupt();
