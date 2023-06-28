@@ -453,6 +453,14 @@ class GPUDistributeSharedMemoryCopyPass
               funcOp, std::move(threadTilingCanonicalizationPatterns)))) {
         return signalPassFailure();
       }
+
+      // Vectorize the distributed copies.
+      RewritePatternSet vectorizationPatterns(context);
+      populateVectorizationPatterns(vectorizationPatterns);
+      if (failed(applyPatternsAndFoldGreedily(
+              funcOp, std::move(vectorizationPatterns)))) {
+        return signalPassFailure();
+      }
     }
   }
 };

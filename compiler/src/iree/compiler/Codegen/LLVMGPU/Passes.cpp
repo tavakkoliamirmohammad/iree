@@ -492,9 +492,11 @@ static void addLowerToLLVMGPUPasses(OpPassManager &pm, bool useROCM) {
 
   // Linalg -> SCF
   pm.addNestedPass<func::FuncOp>(createMemrefCopyToLinalgPass());
+  pm.addNestedPass<func::FuncOp>(createGPUDistributeSharedMemoryCopy());
   pm.addNestedPass<func::FuncOp>(createConvertLinalgToLoopsPass());
   pm.addNestedPass<func::FuncOp>(createCanonicalizerPass());
   pm.addNestedPass<func::FuncOp>(createCSEPass());
+  pm.addNestedPass<func::FuncOp>(createGPUReduceSharedMemoryBankConflicts());
 
   // Pad allocations with dynamic dimension before lowering of SCF and affine
   // but after linalg lowering.

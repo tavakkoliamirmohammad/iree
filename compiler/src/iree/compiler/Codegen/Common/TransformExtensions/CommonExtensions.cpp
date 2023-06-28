@@ -50,6 +50,7 @@
 #include "mlir/Transforms/DialectConversion.h"
 #include "mlir/Transforms/GreedyPatternRewriteDriver.h"
 #include "mlir/Transforms/LoopInvariantCodeMotionUtils.h"
+#include "iree/compiler/Codegen/Utils/MarkerUtils.h"
 
 using namespace mlir;
 using namespace mlir::iree_compiler;
@@ -797,7 +798,8 @@ static LogicalResult gpuComprehensiveBufferizeCopyFn(OpBuilder &builder,
   // post-bufferization copies do not trigger properly.
   // So we keep using `createLinalgCopyOp` which builds a GenericOp.
   // builder.create<linalg::CopyOp>(loc, from, to);
-  mlir::iree_compiler::createLinalgCopyOp(builder, loc, from, to);
+  Operation* copy = mlir::iree_compiler::createLinalgCopyOp(builder, loc, from, to);
+  setMarker(copy, getCopyToWorkgroupMemoryMarker());
   if (needsBarrier)
     builder.create<gpu::BarrierOp>(loc);
   return success();
