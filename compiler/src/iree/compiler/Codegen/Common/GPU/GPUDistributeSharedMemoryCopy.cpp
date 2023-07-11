@@ -78,8 +78,27 @@ populateTilingCopyToWorkgroupMemPatterns(RewritePatternSet &patterns,
         // Return empty tile size for zero dim tensor.
         if (rank == 0)
           return tileSizesVal;
-        int copyTileSize =
-            copyVectorNumBits / dstMemRefType.getElementTypeBitWidth();
+        int64_t innerMostDim;
+          SmallVector<int64_t> shape = cast<linalg::GenericOp>(operation).getStaticLoopRanges();
+        for (auto [index, dim] : llvm::enumerate(llvm::reverse(shape))) {
+          innerMostDim = dim;
+          break;
+        }
+        int copyTileSize;
+        if (innerMostDim % (128 / dstMemRefType.getElementTypeBitWidth()) == 0) {
+          copyTileSize = 128 / dstMemRefType.getElementTypeBitWidth();
+        }
+        // else if (innerMostDim % (96 / dstMemRefType.getElementTypeBitWidth()) == 0) {
+        //   copyTileSize = 96 / dstMemRefType.getElementTypeBitWidth();
+        // }
+        // else if (innerMostDim % (64 / dstMemRefType.getElementTypeBitWidth()) == 0) {
+        //   copyTileSize = 64 / dstMemRefType.getElementTypeBitWidth();
+        // }
+        else if (innerMostDim % ( 32 / dstMemRefType.getElementTypeBitWidth()) == 0) {
+          copyTileSize = 32 / dstMemRefType.getElementTypeBitWidth();
+        } else {
+           copyTileSize = copyVectorNumBits / dstMemRefType.getElementTypeBitWidth();
+        }
         for (unsigned i = 0; i < rank - 1; i++) {
           int64_t t = (rank - i) <= kNumGPUDims ? 1 : 0;
           tileSizesVal.push_back(
